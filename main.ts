@@ -1,9 +1,9 @@
 import { normalizePath, Notice, Plugin } from 'obsidian';
 import Anki, { AnkiError } from 'src/anki';
-import Note, { NoteManager } from 'src/note';
 import locale from 'src/lang';
+import Note, { NoteManager } from 'src/note';
+import AnkiSynchronizerSettingTab, { DEFAULT_SETTINGS, Settings } from 'src/setting';
 import { NoteDigest, NoteState, NoteTypeDigest, NoteTypeState } from 'src/state';
-import AnkiSynchronizerSettingTab, { Settings, DEFAULT_SETTINGS } from 'src/setting';
 import { version } from './package.json';
 
 interface Data {

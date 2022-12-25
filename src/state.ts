@@ -131,9 +131,27 @@ export class NoteState extends State<number, NoteDigest, Note> {
   async updateFields(key: number, current: NoteDigest, value: NoteDigest, note: Note) {
     const fields = this.formatter.format(note);
     console.log(`Updating fields for ${note.title()}`, fields);
+    await this.saveImages(note)
     const updateFieldsResponse = await this.anki.updateFields(note.nid, fields);
     if (updateFieldsResponse === null) return;
     new Notice(locale.synchronizeUpdateFieldsFailureNotice(note.title()));
+  }
+
+  async saveImages(note: Note){
+    const images = this.formatter.images(note);
+    const reader = new FileReader();
+    const fs = require('fs');
+    // fixme 
+    const attachmentPath =  (this.plugin.app as any).vault.adapter.basePath +"/"+ (this.plugin.app as any).vault.getConfig("attachmentFolderPath")
+    for (const image of images) {
+      const data = fs.readFileSync(attachmentPath+"/"+image,{encoding: 'base64'})  
+      let saveImagesResponse = await this.anki.saveImages(image,data)
+      if (saveImagesResponse == image){
+        console.log("save image("+image+") to Anki")
+      }else{
+        new Notice("[Failed!] save image("+image+") to anki") 
+      }
+    }
   }
 
   async updateTags(key: number, current: NoteDigest, nextValue: NoteDigest, note: Note) {
@@ -157,6 +175,7 @@ export class NoteState extends State<number, NoteDigest, Note> {
   }
 
   async handleAddNote(note: Note) {
+    await this.saveImages(note)
     const ankiNote = {
       deckName: note.renderDeckName(),
       modelName: note.typeName,

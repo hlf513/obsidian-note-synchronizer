@@ -97,6 +97,13 @@ class Anki {
     });
   }
 
+  async saveImages(name:string,data:string) {
+    return this.invoke('storeMediaFile',{
+      filename: name,
+      data: data
+    })
+  }
+
   async updateFields(id: number, fields: Record<string, string>) {
     return this.invoke('updateNoteFields', {
       note: {

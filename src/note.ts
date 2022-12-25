@@ -1,7 +1,7 @@
-import { stringifyYaml, FrontMatterCache, TFile } from "obsidian";
-import { NoteDigest, NoteTypeDigest } from "./state";
 import { MD5 } from 'object-hash';
+import { FrontMatterCache, stringifyYaml, TFile } from "obsidian";
 import { Settings } from "./setting";
+import { NoteDigest, NoteTypeDigest } from "./state";
 
 export interface FrontMatter {
   mid: number,

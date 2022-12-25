@@ -1,7 +1,7 @@
-import { Settings } from "./setting";
 import MarkdownIt from "markdown-it";
 import highlightjs from "markdown-it-highlightjs";
 import Note from "./note";
+import { Settings } from "./setting";
 
 export default class Formatter {
   private settings: Settings;
@@ -18,9 +18,29 @@ export default class Formatter {
 
   convertWikilink(markup: string) {
     return markup.replace(/!?\[\[(.+?)\]\]/g, (match, basename) => {
+      // 增图片解析
+      const r = RegExp("(.*)\.[png|jpg|jepg]$","ig")
+      const m = basename.match(r) 
+      if (m != undefined){
+        return `<img src="${basename}">`
+      }
+      // 双链解析
       const url = `obsidian://open?vault=${encodeURIComponent(this.vaultName)}&file=${encodeURIComponent(basename)}`;
       return `[${basename}](${url})`;
     })
+  }
+
+  fetchImages(markup: string) {
+    const images: any[] = []
+    markup.replace(/!?\[\[(.+?)\]\]/g, (match, basename) => {
+      const r = RegExp("(.*)\.[png|jpg|jepg]$","ig")
+      const m = basename.match(r) 
+      if (m != undefined){
+        images.push(basename)
+        return basename
+      }
+    }) 
+    return images
   }
 
   convertHighlightToCloze(markup: string) {
@@ -64,5 +84,20 @@ export default class Formatter {
       result[key] = this.settings.render ? this.html(markdown, index) : markdown;
     });
     return result;
+  }
+
+  images(note: Note) {
+    let images: any[] = []
+    const fields = note.fields;
+    const keys = Object.keys(fields);
+    keys.map((key, index) => {
+      const linkify = (index == 0) && this.settings.linkify && !note.isCloze();
+      const field = linkify ? `[[${fields[key]}]]` : fields[key];
+      const image = this.fetchImages(field);
+      if (image.length != 0 ){
+        images = images.concat(image)
+      }
+    }); 
+    return images
   }
 }

@@ -46,6 +46,8 @@ class Anki {
       });
       const data = json as responseType;
       if (data.error !== null) {
+        new Notice("anki error: "+data.error)
+        console.log(data.error)
         return new AnkiError(data.error);
       }
       return data.result;

@@ -21,7 +21,7 @@ export class MediaManager {
     if (!mediaFile) mediaFile = metadataCache.getFirstLinkpathDest(file_path, file_path);
 
     // @ts-ignore
-    const mediaAbsPath = vault.adapter.basePath + '\\' + mediaFile?.path.replace('/', '\\');
+    const mediaAbsPath = vault.adapter.basePath + '/' + mediaFile?.path;
     const mediaName = item.link.split('/').pop() as string;
 
     return new Media(mediaName, mediaAbsPath);

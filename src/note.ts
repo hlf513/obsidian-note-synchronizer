@@ -1,7 +1,7 @@
-import { stringifyYaml, FrontMatterCache, TFile, EmbedCache } from "obsidian";
-import { NoteDigest, NoteTypeDigest } from "./state";
 import { MD5 } from "object-hash";
+import { EmbedCache, FrontMatterCache, Notice, TFile, stringifyYaml } from "obsidian";
 import { Settings } from "./setting";
+import { NoteDigest, NoteTypeDigest } from "./state";
 
 const PICTURE_EXTENSION = ["png", "jpg", "jpeg", "gif", "bmp", "svg"];
 const VIDEO_EXTENSION = ["mp3", "wav", "m4a", "ogg", "3gp", "flac", "mp4", "ogv", "mov", "mkv", "webm"];
@@ -91,9 +91,15 @@ export class NoteManager {
     const yamlEndIndex = lines.indexOf("---", 1);
     const body = lines.slice(yamlEndIndex + 1);
     const noteType = noteTypes.get(frontMatter.mid);
-    if (!noteType) return [undefined, undefined];
+    if (!noteType){
+      new Notice(file.basename+" not found mid");
+      return [undefined, undefined];
+    }
     const [fields, mediaNameMap] = this.parseFields(file.basename, noteType, body, media);
-    if (!fields) return [undefined, undefined];
+    if (!fields) {
+      new Notice(file.basename+" not found fields")
+      return [undefined, undefined];
+    }
     // now it is a valid Note
     const basename = file.basename;
     const folder = file.parent.path == '/' ? '' : file.parent.path;

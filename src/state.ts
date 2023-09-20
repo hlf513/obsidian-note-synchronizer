@@ -1,10 +1,10 @@
 import AnkiSynchronizer from 'main';
 import { Notice, TFile } from 'obsidian';
 import Note, { FrontMatter } from 'src/note';
-import Media from './media';
 import Anki from './anki';
 import Formatter from './format';
 import locale from './lang';
+import Media from './media';
 
 abstract class State<K, V, I = undefined> extends Map<K, V> {
   protected plugin: AnkiSynchronizer;
@@ -145,9 +145,12 @@ export class NoteState extends State<number, NoteDigest, Note> {
 
   async updateFields(key: number, current: NoteDigest, value: NoteDigest, note: Note) {
     const fields = this.formatter.format(note);
-    console.log(`Updating fields for ${note.title()}`, fields);
     const updateFieldsResponse = await this.anki.updateFields(note.nid, fields);
-    if (updateFieldsResponse === null) return;
+    if (updateFieldsResponse === null) {
+      new Notice("Updated fields for "+note.title())
+      console.log(`Updated fields for ${note.title()}`);
+      return;
+    }
     new Notice(locale.synchronizeUpdateFieldsFailureNotice(note.title()));
   }
 
@@ -157,15 +160,23 @@ export class NoteState extends State<number, NoteDigest, Note> {
     let addTagsResponse = null,
       removeTagsResponse = null;
     if (tagsToAdd.length) {
-      console.log(`Adding tags for ${note.title()}`, tagsToAdd);
       addTagsResponse = await this.anki.addTagsToNotes([note.nid], tagsToAdd);
+      if (addTagsResponse !== null){
+        new Notice(locale.synchronizeUpdateTagsFailureNotice(note.title()));
+      }else{
+        console.log(`Added tags for ${note.title()}`, tagsToAdd);
+        new Notice(`Added tags for ${note.title()}`);
+      }
     }
     if (tagsToRemove.length) {
-      console.log(`Removing tags for ${note.title()}`, tagsToRemove);
       removeTagsResponse = await this.anki.removeTagsFromNotes([note.nid], tagsToRemove);
+      if (removeTagsResponse !== null){
+        new Notice(locale.synchronizeUpdateTagsFailureNotice(note.title()));
+      }else{
+        console.log(`Removed tags for ${note.title()}`, tagsToRemove);
+        new Notice(`Removed tags for ${note.title()}`);
+      }
     }
-    if (addTagsResponse || removeTagsResponse)
-      new Notice(locale.synchronizeUpdateTagsFailureNotice(note.title()));
   }
 
   delete(key: number) {
@@ -173,16 +184,17 @@ export class NoteState extends State<number, NoteDigest, Note> {
     return super.delete(key);
   }
 
-  async handleAddNote(note: Note) {
+  async handleAddNote(note: Note, file: TFile) {
     const ankiNote = {
       deckName: note.renderDeckName(),
       modelName: note.typeName,
       fields: this.formatter.format(note),
       tags: note.tags
     };
-    console.log(`Adding note for ${note.title()}`, ankiNote);
     let idOrError = await this.anki.addNote(ankiNote);
     if (typeof idOrError === 'number') {
+      console.log(`Added note for ${note.title()}`);
+      new Notice(`Added note for ${note.title()}`);
       return idOrError;
     }
 
@@ -193,16 +205,19 @@ export class NoteState extends State<number, NoteDigest, Note> {
       if (typeof didOrError === 'number') {
         idOrError = await this.anki.addNote(ankiNote);
         if (typeof idOrError === 'number') {
+          console.log(`Added note for ${note.title()}`);
+          new Notice(`Added note for ${note.title()}`);
           return idOrError;
         }
       }
     } else {
+      new Notice("[error]"+note.basename+" " + idOrError.message)
       console.log(idOrError.message);
     }
   }
 
   async handleAddMedia(media: Media) {
-    console.log(`Adding media ${media.filename}`, media);
+    console.log(`Adding media ${media.filename}`);
     await this.anki.addMedia(media);
   }
 }

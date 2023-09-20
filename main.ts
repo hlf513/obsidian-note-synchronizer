@@ -1,10 +1,10 @@
 import { normalizePath, Notice, Plugin } from 'obsidian';
 import Anki, { AnkiError } from 'src/anki';
-import Note, { NoteManager } from 'src/note';
-import { MediaManager } from 'src/media';
 import locale from 'src/lang';
+import { MediaManager } from 'src/media';
+import Note, { NoteManager } from 'src/note';
+import AnkiSynchronizerSettingTab, { DEFAULT_SETTINGS, Settings } from 'src/setting';
 import { NoteDigest, NoteState, NoteTypeDigest, NoteTypeState } from 'src/state';
-import AnkiSynchronizerSettingTab, { Settings, DEFAULT_SETTINGS } from 'src/setting';
 import { version } from './package.json';
 
 interface Data {
@@ -136,18 +136,14 @@ export default class AnkiSynchronizer extends Plugin {
     for (const file of allFiles) {
       // ignore templates
       if (file.path.startsWith(templatesPath)) continue;
+
       // read and validate content
-      const content = await this.app.vault.cachedRead(file);
       const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter;
       if (!frontmatter) continue;
+
+      const content = await this.app.vault.read(file);
       const media = this.app.metadataCache.getFileCache(file)?.embeds;
-      if (media) {
-        for (const item of media) {
-          this.noteState.handleAddMedia(
-            this.mediaManager.parseMedia(item, this.app.vault, this.app.metadataCache)
-          );
-        }
-      }
+ 
       const [note, mediaNameMap] = this.noteManager.validateNote(
         file,
         frontmatter,
@@ -158,7 +154,7 @@ export default class AnkiSynchronizer extends Plugin {
       if (!note) continue;
       if (note.nid === 0) {
         // new file
-        const nid = await this.noteState.handleAddNote(note);
+        const nid = await this.noteState.handleAddNote(note,file);
         if (nid === undefined) {
           new Notice(locale.synchronizeAddNoteFailureNotice(file.basename));
           continue;
@@ -167,6 +163,18 @@ export default class AnkiSynchronizer extends Plugin {
         this.app.vault.modify(file, this.noteManager.dump(note, mediaNameMap));
       }
       state.set(note.nid, [note.digest(), note]);
+      if (this.noteState.get(note.nid)?.hash !== note.digest().hash ){
+        if (media){
+          for (const item of media) {
+            if (!item.link.includes(".") || item.link.includes(".canvas")){
+              continue
+            }
+            this.noteState.handleAddMedia(
+              this.mediaManager.parseMedia(item, this.app.vault, this.app.metadataCache)
+            );
+          }
+        }
+      }
     }
     await this.noteState.change(state);
     await this.save();

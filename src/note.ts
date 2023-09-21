@@ -124,22 +124,26 @@ export class NoteManager {
         fieldContents.push(buffer.join('\n'));
         buffer = [];
       } else {
+        // Fixed 这里假设图片都是单独一行，实际上并不总是这样
         if (
           media &&
           mediaCount < media.length &&
           line.includes(media[mediaCount].original) &&
           this.validateMedia(media[mediaCount].link)
         ) {
-          let mediaName = line.replace(
-            media[mediaCount].original,
-            media[mediaCount].link.split('/').pop() as string
-          );
+          let mediaName = media[mediaCount].link.split('/').pop() as string
           if (this.isPicture(mediaName)) mediaName = '<img src="' + mediaName + '">';
           else mediaName = '[sound:' + mediaName + ']';
+
+          let newLine = line.replace(
+            media[mediaCount].original,
+            mediaName
+          );
+
           if (!mediaNameMap.map(d => d.obsidian).includes(media[mediaCount].original)) {
             mediaNameMap.push({ obsidian: media[mediaCount].original, anki: mediaName });
             mediaCount++;
-            buffer.push(mediaName);
+            buffer.push(newLine);
           }
         } else {
           buffer.push(line);

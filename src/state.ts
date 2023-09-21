@@ -181,6 +181,8 @@ export class NoteState extends State<number, NoteDigest, Note> {
 
   delete(key: number) {
     this.plugin.anki.deleteNotes([key]);
+    console.log(`Deleted key ${key}`);
+    new Notice(`Deleted key ${key}`);
     return super.delete(key);
   }
 

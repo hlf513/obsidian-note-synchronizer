@@ -1,7 +1,7 @@
-import { Settings } from './setting';
 import MarkdownIt from 'markdown-it';
 import highlightjs from 'markdown-it-highlightjs';
 import Note from './note';
+import { Settings } from './setting';
 
 export default class Formatter {
   private settings: Settings;
@@ -18,10 +18,17 @@ export default class Formatter {
 
   convertWikilink(markup: string) {
     return markup.replace(/!?\[\[(.+?)\]\]/g, (match, basename) => {
+      // fixed 别名显示及跳转问题
+      let display = basename;
+      if (basename.includes('|') || basename.includes('|')) {
+        let path = basename.replace('\\', '').split('|');
+        basename = path[0];
+        display = path[1];
+      }
       const url = `obsidian://open?vault=${encodeURIComponent(
         this.vaultName
       )}&file=${encodeURIComponent(basename)}`;
-      return `[${basename}](${url})`;
+      return `[${display}](${url})`;
     });
   }
 

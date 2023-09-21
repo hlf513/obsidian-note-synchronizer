@@ -42,17 +42,17 @@ export default class AnkiSynchronizer extends Plugin {
   configureUI() {
     // Add import note types command
     this.addCommand({
-      id: "import",
+      id: 'import',
       name: locale.importCommandName,
-      callback: async () => await this.importNoteTypes(),
+      callback: async () => await this.importNoteTypes()
     });
     this.addRibbonIcon('enter', locale.importCommandName, async () => await this.importNoteTypes());
 
     // Add synchronize command
     this.addCommand({
-      id: "synchronize",
+      id: 'synchronize',
       name: locale.synchronizeCommandName,
-      callback: async () => await this.synchronize(),
+      callback: async () => await this.synchronize()
     });
     this.addRibbonIcon(
       'sheets-in-box',
@@ -70,7 +70,7 @@ export default class AnkiSynchronizer extends Plugin {
       version: version,
       settings: this.settings,
       noteState: Object.fromEntries(this.noteState),
-      noteTypeState: Object.fromEntries(this.noteTypeState),
+      noteTypeState: Object.fromEntries(this.noteTypeState)
     });
   }
 
@@ -81,7 +81,7 @@ export default class AnkiSynchronizer extends Plugin {
 
   // Retrieve template information from Obsidian core plugin "Templates"
   getTemplatePath() {
-    const templatesPlugin = (this.app as any).internalPlugins?.plugins["templates"];
+    const templatesPlugin = (this.app as any).internalPlugins?.plugins['templates'];
     if (!templatesPlugin?.enabled) {
       new Notice(locale.templatesNotEnabledNotice);
       return;
@@ -143,7 +143,7 @@ export default class AnkiSynchronizer extends Plugin {
 
       const content = await this.app.vault.read(file);
       const media = this.app.metadataCache.getFileCache(file)?.embeds;
- 
+
       const [note, mediaNameMap] = this.noteManager.validateNote(
         file,
         frontmatter,
@@ -154,7 +154,7 @@ export default class AnkiSynchronizer extends Plugin {
       if (!note) continue;
       if (note.nid === 0) {
         // new file
-        const nid = await this.noteState.handleAddNote(note,file);
+        const nid = await this.noteState.handleAddNote(note, file);
         if (nid === undefined) {
           new Notice(locale.synchronizeAddNoteFailureNotice(file.basename));
           continue;
@@ -163,11 +163,11 @@ export default class AnkiSynchronizer extends Plugin {
         this.app.vault.modify(file, this.noteManager.dump(note, mediaNameMap));
       }
       state.set(note.nid, [note.digest(), note]);
-      if (this.noteState.get(note.nid)?.hash !== note.digest().hash ){
-        if (media){
+      if (this.noteState.get(note.nid)?.hash !== note.digest().hash) {
+        if (media) {
           for (const item of media) {
-            if (!item.link.includes(".") || item.link.includes(".canvas")){
-              continue
+            if (!item.link.includes('.') || item.link.includes('.canvas')) {
+              continue;
             }
             this.noteState.handleAddMedia(
               this.mediaManager.parseMedia(item, this.app.vault, this.app.metadataCache)

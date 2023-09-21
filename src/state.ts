@@ -147,7 +147,7 @@ export class NoteState extends State<number, NoteDigest, Note> {
     const fields = this.formatter.format(note);
     const updateFieldsResponse = await this.anki.updateFields(note.nid, fields);
     if (updateFieldsResponse === null) {
-      new Notice("Updated fields for "+note.title())
+      new Notice('Updated fields for ' + note.title());
       console.log(`Updated fields for ${note.title()}`);
       return;
     }
@@ -161,18 +161,18 @@ export class NoteState extends State<number, NoteDigest, Note> {
       removeTagsResponse = null;
     if (tagsToAdd.length) {
       addTagsResponse = await this.anki.addTagsToNotes([note.nid], tagsToAdd);
-      if (addTagsResponse !== null){
+      if (addTagsResponse !== null) {
         new Notice(locale.synchronizeUpdateTagsFailureNotice(note.title()));
-      }else{
+      } else {
         console.log(`Added tags for ${note.title()}`, tagsToAdd);
         new Notice(`Added tags for ${note.title()}`);
       }
     }
     if (tagsToRemove.length) {
       removeTagsResponse = await this.anki.removeTagsFromNotes([note.nid], tagsToRemove);
-      if (removeTagsResponse !== null){
+      if (removeTagsResponse !== null) {
         new Notice(locale.synchronizeUpdateTagsFailureNotice(note.title()));
-      }else{
+      } else {
         console.log(`Removed tags for ${note.title()}`, tagsToRemove);
         new Notice(`Removed tags for ${note.title()}`);
       }
@@ -211,7 +211,7 @@ export class NoteState extends State<number, NoteDigest, Note> {
         }
       }
     } else {
-      new Notice("[error]"+note.basename+" " + idOrError.message)
+      new Notice('[error]' + note.basename + ' ' + idOrError.message);
       console.log(idOrError.message);
     }
   }

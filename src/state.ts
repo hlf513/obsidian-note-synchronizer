@@ -77,8 +77,15 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
     const pseudoFrontMatter = {
       mid: key,
       nid: 0,
-      tags: [value.name]
+      tags: []
     } as FrontMatter;
+
+    // 只有这三个模版需要添加标签
+    const tagsName = ["Concept","Usage","Think"];
+    if (tagsName.includes(value.name)){
+      pseudoFrontMatter.tags.push(value.name.toLowerCase())
+    }
+
     const pseudoFields: Record<string, string> = {};
     value.fieldNames.map(x => (pseudoFields[x] = '\n\n'));
     const templateNote = new Note(

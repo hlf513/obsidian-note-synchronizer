@@ -43,7 +43,19 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
   private templateFolderPath: string | undefined = undefined;
 
   setTemplatePath(templateFolderPath: string) {
-    this.templateFolderPath = templateFolderPath;
+    this.templateFolderPath = templateFolderPath + '/anki';
+
+    this.plugin.app.vault.adapter
+      .exists(this.templateFolderPath)
+      .then(exists => {
+        if (!exists) {
+          console.log('created' + this.templateFolderPath);
+          this.plugin.app.vault.createFolder(this.templateFolderPath as string);
+        }
+      })
+      .catch(e => {
+        console.log('check template/anki exists was error: ' + e);
+      });
   }
 
   delete(key: number) {
@@ -65,8 +77,7 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
     const pseudoFrontMatter = {
       mid: key,
       nid: 0,
-      tags: [],
-      date: '{{date}} {{time}}'
+      tags: [value.name]
     } as FrontMatter;
     const pseudoFields: Record<string, string> = {};
     value.fieldNames.map(x => (pseudoFields[x] = '\n\n'));

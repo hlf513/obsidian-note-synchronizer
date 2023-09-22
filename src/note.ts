@@ -147,7 +147,7 @@ export class NoteManager {
           if (this.isPicture(mediaName)) mediaName = '<img src="' + mediaName + '">';
           else mediaName = '[sound:' + mediaName + ']';
 
-          let newLine = line.replace(media[mediaCount].original, mediaName);
+          const newLine = line.replace(media[mediaCount].original, mediaName);
 
           if (!mediaNameMap.map(d => d.obsidian).includes(media[mediaCount].original)) {
             mediaNameMap.push({ obsidian: media[mediaCount].original, anki: mediaName });

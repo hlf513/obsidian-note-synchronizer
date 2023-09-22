@@ -21,7 +21,7 @@ export default class Formatter {
       // fixed 别名显示及跳转问题
       let display = basename;
       if (basename.includes('|') || basename.includes('|')) {
-        let path = basename.replace('\\', '').split('|');
+        const path = basename.replace('\\', '').split('|');
         basename = path[0];
         display = path[1];
       }

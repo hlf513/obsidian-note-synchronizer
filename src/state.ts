@@ -61,7 +61,7 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
   delete(key: number) {
     const noteTypeDigest = this.get(key);
     if (noteTypeDigest !== undefined) {
-      const templatePath = `${this.templateFolderPath}/${noteTypeDigest.name}.md`;
+      const templatePath = `${this.templateFolderPath}/anki-${noteTypeDigest.name}.md`;
       const maybeTemplate = this.plugin.app.vault.getAbstractFileByPath(templatePath);
       if (maybeTemplate !== null) {
         this.plugin.app.vault.delete(maybeTemplate);
@@ -95,7 +95,7 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
       pseudoFrontMatter,
       pseudoFields
     );
-    const templatePath = `${this.templateFolderPath}/${value.name}.md`;
+    const templatePath = `${this.templateFolderPath}/anki-${value.name}.md`;
     const maybeTemplate = this.plugin.app.vault.getAbstractFileByPath(templatePath);
     if (maybeTemplate !== null) {
       await this.plugin.app.vault.modify(

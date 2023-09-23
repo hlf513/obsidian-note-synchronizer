@@ -18,12 +18,16 @@ export default class Formatter {
 
   convertWikilink(markup: string) {
     return markup.replace(/!?\[\[(.+?)\]\]/g, (match, basename) => {
+      console.log(basename);
       // fixed 别名显示及跳转问题
       let display = basename;
       if (basename.includes('|') || basename.includes('|')) {
         const path = basename.replace('\\', '').split('|');
         basename = path[0];
         display = path[1];
+      }
+      if (basename.includes('#') && basename.split('#')[0] == '') {
+        return `${basename}`;
       }
       const url = `obsidian://open?vault=${encodeURIComponent(
         this.vaultName

@@ -147,7 +147,21 @@ export class NoteManager {
           if (this.isPicture(mediaName)) mediaName = '<img src="' + mediaName + '">';
           else mediaName = '[sound:' + mediaName + ']';
 
-          const newLine = line.replace(media[mediaCount].original, mediaName);
+          let newLine = line.replace(media[mediaCount].original, mediaName);
+
+          // fixed 一行有多个 media 的场景
+          for (let index = mediaCount + 1; index < media.length; index++) {
+            if (newLine.includes(media[index].original)) {
+              mediaName = media[index].link.split('/').pop() as string;
+              if (this.isPicture(mediaName)) mediaName = '<img src="' + mediaName + '">';
+              else mediaName = '[sound:' + mediaName + ']';
+
+              newLine = newLine.replace(media[index].original, mediaName);
+              mediaCount++;
+            } else {
+              break;
+            }
+          }
 
           if (!mediaNameMap.map(d => d.obsidian).includes(media[mediaCount].original)) {
             mediaNameMap.push({ obsidian: media[mediaCount].original, anki: mediaName });
@@ -173,7 +187,10 @@ export class NoteManager {
   }
 
   isPicture(mediaName: string) {
-    return PICTURE_EXTENSION.includes(mediaName.split('.').pop() as string);
+    console.log(mediaName);
+    const ret = PICTURE_EXTENSION.includes(mediaName.split('.').pop() as string);
+    console.log(ret);
+    return ret;
   }
 
   dump(note: Note, mediaNameMap: MediaNameMap[] | undefined = undefined) {

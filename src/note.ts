@@ -187,10 +187,7 @@ export class NoteManager {
   }
 
   isPicture(mediaName: string) {
-    console.log(mediaName);
-    const ret = PICTURE_EXTENSION.includes(mediaName.split('.').pop() as string);
-    console.log(ret);
-    return ret;
+    return PICTURE_EXTENSION.includes(mediaName.split('.').pop() as string);
   }
 
   dump(note: Note, mediaNameMap: MediaNameMap[] | undefined = undefined) {

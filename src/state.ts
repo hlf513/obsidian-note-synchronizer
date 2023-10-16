@@ -85,6 +85,7 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
     if (tagsName.includes(value.name)) {
       pseudoFrontMatter.tags.push(value.name.toLowerCase());
     }
+    pseudoFrontMatter.tags.push('anki');
 
     const pseudoFields: Record<string, string> = {};
     value.fieldNames.map(x => (pseudoFields[x] = '\n\n'));

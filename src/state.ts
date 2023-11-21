@@ -210,7 +210,7 @@ export class NoteState extends State<number, NoteDigest, Note> {
       deckName: note.renderDeckName(),
       modelName: note.typeName,
       fields: this.formatter.format(note),
-      tags: note.tags
+      tags: note.renderTags()
     };
     let idOrError = await this.anki.addNote(ankiNote);
     if (typeof idOrError === 'number') {

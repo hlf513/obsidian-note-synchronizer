@@ -73,6 +73,15 @@ export default class Note {
     return this.folder.replace(/\//g, '::') || 'Obsidian';
   }
 
+  renderTags(){
+    const tags: string[] = []
+    this.tags.forEach(t =>{
+      tags.push(t.replaceAll('/','::'))
+    })
+
+    return tags
+  }
+
   isCloze() {
     return this.typeName === '填空题' || this.typeName === 'Cloze';
   }

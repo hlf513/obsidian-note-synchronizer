@@ -118,7 +118,8 @@ class Anki {
   }
 
   async addTagsToNotes(noteIds: number[], tags: string[]) {
-    const tagstring = tags.join(' ');
+    let tagstring = tags.join(' ');
+    tagstring = tagstring.replaceAll('/', '::');
     return this.invoke('addTags', {
       notes: noteIds,
       tags: tagstring

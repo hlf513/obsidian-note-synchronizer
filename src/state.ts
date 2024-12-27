@@ -77,7 +77,8 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
     const pseudoFrontMatter = {
       mid: key,
       nid: 0,
-      tags: []
+      tags: [],
+      moc: [],
     } as FrontMatter;
 
     // 导入的 anki Note type 默认添加 anki标签

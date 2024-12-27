@@ -27,6 +27,7 @@ export interface FrontMatter {
   mid: number;
   nid: number;
   tags: string[];
+  moc: string[];
 }
 
 export default class Note {
@@ -35,6 +36,7 @@ export default class Note {
   nid: number;
   mid: number;
   tags: string[];
+  moc: string[];
   fields: Record<string, string>;
   typeName: string;
   extras: object;
@@ -48,13 +50,14 @@ export default class Note {
   ) {
     this.basename = basename;
     this.folder = folder;
-    const { mid, nid, tags, ...extras } = frontMatter;
+    const { mid, nid, tags, moc, ...extras } = frontMatter;
     this.typeName = typeName;
     this.mid = mid;
     this.nid = nid;
     this.tags = tags;
     this.extras = extras;
     this.fields = fields;
+    this.moc = moc;
   }
 
   digest(): NoteDigest {
@@ -70,7 +73,12 @@ export default class Note {
   }
 
   renderDeckName() {
-    return this.folder.replace(/\//g, '::') || 'Obsidian';
+    const mocList = this.moc;
+    if (mocList && mocList.length > 0) {
+        return mocList[0].replace(/\[\[(.+?)\]\]/g, '$1');
+    }
+
+    return 'Obsidian';
   }
 
   renderTags(){
@@ -205,7 +213,8 @@ export class NoteManager {
         {
           mid: note.mid,
           nid: note.nid,
-          tags: note.tags
+          tags: note.tags,
+          moc: note.moc
         },
         note.extras
       )

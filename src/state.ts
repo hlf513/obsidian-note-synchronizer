@@ -80,11 +80,7 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
       tags: []
     } as FrontMatter;
 
-    // 只有这三个模版需要添加标签
-    const tagsName = ['Concept', 'Usage', 'Think'];
-    if (tagsName.includes(value.name)) {
-      pseudoFrontMatter.tags.push(value.name.toLowerCase());
-    }
+    // 导入的 anki Note type 默认添加 anki标签
     pseudoFrontMatter.tags.push('anki');
 
     const pseudoFields: Record<string, string> = {};

@@ -132,8 +132,27 @@ export default class AnkiSynchronizer extends Plugin {
     if (templatesPath === undefined) return;
     new Notice(locale.synchronizeStartNotice);
     const allFiles = this.app.vault.getMarkdownFiles();
+    const ankiFiles = allFiles.filter(file => {
+      const cache = this.app.metadataCache.getFileCache(file);
+      if (!cache) return false;
+      
+      // 检查 frontmatter 中的 tags
+      const frontmatterTags = cache.frontmatter?.tags;
+      if (frontmatterTags) {
+          if (Array.isArray(frontmatterTags)) {
+              return frontmatterTags.includes('anki');
+          } else if (typeof frontmatterTags === 'string') {
+              return frontmatterTags === 'anki';
+          }
+      }
+      
+      // 检查行内标签 (#anki)
+      const tags = cache.tags;
+      return tags?.some(tag => tag.tag === '#anki');
+   });
     const state = new Map<number, [NoteDigest, Note]>();
-    for (const file of allFiles) {
+    // console.log(ankiFiles)
+    for (const file of ankiFiles) {
       // ignore templates
       if (file.path.startsWith(templatesPath)) continue;
 

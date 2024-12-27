@@ -18,7 +18,7 @@ export default class Formatter {
 
   convertWikilink(markup: string) {
     return markup.replace(/!?\[\[(.+?)\]\]/g, (match, basename) => {
-      console.log(basename);
+      // console.log(basename);
       // fixed 别名显示及跳转问题
       let display = basename;
       if (basename.includes('|') || basename.includes('|')) {

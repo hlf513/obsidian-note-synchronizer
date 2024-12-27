@@ -210,8 +210,8 @@ export class NoteManager {
         note.extras
       )
     )
-      .trim()
-      .replace(/"/g, ``);
+      .trim();
+      // .replace(/"/g, ``); // 不能删除引号，因为双链需要，"[[link]]"
     const fieldNames = Object.keys(note.fields);
     const lines = [`---`, frontMatter, `---`];
     if (note.isCloze()) {

@@ -28,6 +28,7 @@ export interface FrontMatter {
   nid: number;
   tags: string[];
   moc: string[];
+  mocPathMap?: Map<string, string>;
 }
 
 export default class Note {
@@ -37,6 +38,7 @@ export default class Note {
   mid: number;
   tags: string[];
   moc: string[];
+  mocPathMap: Map<string, string>;
   fields: Record<string, string>;
   typeName: string;
   extras: object;
@@ -46,7 +48,8 @@ export default class Note {
     folder: string,
     typeName: string,
     frontMatter: FrontMatter,
-    fields: Record<string, string>
+    fields: Record<string, string>,
+    mocPathMap: Map<string, string>
   ) {
     this.basename = basename;
     this.folder = folder;
@@ -58,6 +61,7 @@ export default class Note {
     this.extras = extras;
     this.fields = fields;
     this.moc = moc;
+    this.mocPathMap = mocPathMap;
   }
 
   digest(): NoteDigest {
@@ -73,12 +77,18 @@ export default class Note {
   }
 
   renderDeckName() {
+    let deckName = 'Obsidian'
+
     const mocList = this.moc;
-    if (mocList && mocList.length > 0) {
-        return mocList[0].replace(/\[\[(.+?)\]\]/g, '$1');
+    if (mocList && mocList.length > 0 && this.mocPathMap) {
+      const moc = mocList[0].replace(/\[\[(.+?)\]\]/g, '$1')
+      const currentMocPath = this.mocPathMap.get(moc)
+      if (currentMocPath) {
+        deckName = currentMocPath
+      }
     }
 
-    return 'Obsidian';
+    return deckName;
   }
 
   renderTags(){
@@ -107,7 +117,8 @@ export class NoteManager {
     frontmatter: FrontMatterCache,
     content: string,
     media: EmbedCache[] | undefined,
-    noteTypes: Map<number, NoteTypeDigest>
+    noteTypes: Map<number, NoteTypeDigest>,
+    mocPathMap: Map<string, string>
   ): [Note | undefined, MediaNameMap[] | undefined] {
     if (
       !frontmatter.hasOwnProperty('mid') ||
@@ -132,7 +143,7 @@ export class NoteManager {
     // now it is a valid Note
     const basename = file.basename;
     const folder = file.parent.path == '/' ? '' : file.parent.path;
-    return [new Note(basename, folder, noteType.name, frontMatter, fields), mediaNameMap];
+    return [new Note(basename, folder, noteType.name, frontMatter, fields,mocPathMap), mediaNameMap];
   }
 
   parseFields(

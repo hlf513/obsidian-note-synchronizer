@@ -91,7 +91,8 @@ export class NoteTypeState extends State<number, NoteTypeDigest> {
       this.templateFolderPath!,
       value.name,
       pseudoFrontMatter,
-      pseudoFields
+      pseudoFields,
+      new Map<string, string>()
     );
     const templatePath = `${this.templateFolderPath}/anki-${value.name}.md`;
     const maybeTemplate = this.plugin.app.vault.getAbstractFileByPath(templatePath);

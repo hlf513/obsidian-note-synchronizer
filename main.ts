@@ -1,4 +1,4 @@
-import { normalizePath, Notice, Plugin } from 'obsidian';
+import { normalizePath, Notice, Plugin, TFile } from 'obsidian';
 import Anki, { AnkiError } from 'src/anki';
 import locale from 'src/lang';
 import { MediaManager } from 'src/media';
@@ -131,25 +131,65 @@ export default class AnkiSynchronizer extends Plugin {
     const templatesPath = this.getTemplatePath();
     if (templatesPath === undefined) return;
     new Notice(locale.synchronizeStartNotice);
-    const allFiles = this.app.vault.getMarkdownFiles();
+
+    const allFiles = this.app.vault.getMarkdownFiles(); // 缓存所有文件
+    const allMocs = new Set<string>(); // 缓存所有 moc 的集合
+    const noteMocMap = new Map<string, string>(); // 缓存文件名和对应的 moc
+    const mocPathMap = new Map<string, string>(); // 缓存 moc 和对应的 moc 路径
+
+    // 获取所有包含 #anki 的文件
     const ankiFiles = allFiles.filter(file => {
       const cache = this.app.metadataCache.getFileCache(file);
       if (!cache) return false;
-      
-      // 检查 frontmatter 中的 tags
+
+      let isAnki = false;
+
+      // 1. 检查 frontmatter 中的 tags
       const frontmatterTags = cache.frontmatter?.tags;
       if (frontmatterTags) {
           if (Array.isArray(frontmatterTags)) {
-              return frontmatterTags.includes('anki');
+              isAnki = frontmatterTags.includes('anki');
           } else if (typeof frontmatterTags === 'string') {
-              return frontmatterTags === 'anki';
+              isAnki = frontmatterTags === 'anki';
           }
       }
-      
-      // 检查行内标签 (#anki)
-      const tags = cache.tags;
-      return tags?.some(tag => tag.tag === '#anki');
+      // 2. 检查行内标签 (#anki)
+      if (!isAnki) {
+        const tags = cache.tags;
+        if (tags) {
+          isAnki = tags?.some(tag => tag.tag === '#anki');
+        }
+      }
+
+      if (isAnki) {
+        // 缓存 frontmatter 中的 moc
+        const frontmatterMoc = cache.frontmatter?.moc;
+        if (frontmatterMoc && frontmatterMoc.length > 0) {
+          const currentMoc = frontmatterMoc[0].replace(/\[\[(.+?)\]\]/g, '$1');
+          allMocs.add(currentMoc);
+          noteMocMap.set(file.basename, currentMoc);
+        }
+      }
+
+      return isAnki;
    });
+
+   // 获取所有 moc 的全路径
+    allMocs.forEach(moc => {
+      const currentMocPath = [];
+      let currentMoc = moc;
+      currentMocPath.push(currentMoc);
+      
+      while (noteMocMap.has(currentMoc)) {
+        const nextMoc = noteMocMap.get(currentMoc);
+        if (!nextMoc) break;
+        currentMocPath.push(nextMoc);
+        currentMoc = nextMoc;
+      }
+      currentMocPath.reverse();
+      mocPathMap.set(moc, currentMocPath.join('::'))
+    });
+
     const state = new Map<number, [NoteDigest, Note]>();
     // console.log(ankiFiles)
     for (const file of ankiFiles) {
@@ -168,7 +208,8 @@ export default class AnkiSynchronizer extends Plugin {
         frontmatter,
         content,
         media,
-        this.noteTypeState
+        this.noteTypeState,
+        mocPathMap
       );
       if (!note) continue;
       if (note.nid === 0) {

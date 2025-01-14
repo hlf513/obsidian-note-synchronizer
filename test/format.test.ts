@@ -5,7 +5,8 @@ const markdownMode = new Formatter('卡片盒', {
   headingLevel: 1,
   render: false,
   linkify: true,
-  highlightAsCloze: false
+  highlightAsCloze: false,
+  scanDirectory: ''
 });
 
 test('Render back link', () => {

@@ -132,7 +132,17 @@ export default class AnkiSynchronizer extends Plugin {
     if (templatesPath === undefined) return;
     new Notice(locale.synchronizeStartNotice);
 
-    const allFiles = this.app.vault.getMarkdownFiles(); // 缓存所有文件
+    let allFiles = [];
+
+    const scanDirectory = this.settings.scanDirectory;
+    if (scanDirectory === '') {
+      allFiles = this.app.vault.getMarkdownFiles();  // 缓存所有文件
+    } else {
+      allFiles = this.app.vault.getMarkdownFiles().filter(file => {
+        return file.path.startsWith(scanDirectory); // 获取指定目录下的所有文件
+      });
+    }
+
     const allMocs = new Set<string>(); // 缓存所有 moc 的集合
     const noteMocMap = new Map<string, string>(); // 缓存文件名和对应的 moc
     const mocPathMap = new Map<string, string>(); // 缓存 moc 和对应的 moc 路径

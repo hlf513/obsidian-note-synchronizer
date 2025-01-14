@@ -8,13 +8,15 @@ export interface Settings {
   linkify: boolean;
   headingLevel: number;
   highlightAsCloze: boolean;
+  scanDirectory: string;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   render: true,
   linkify: true,
   headingLevel: 1,
-  highlightAsCloze: false
+  highlightAsCloze: false,
+  scanDirectory: ''
 };
 
 export default class AnkiSynchronizerSettingTab extends PluginSettingTab {
@@ -72,6 +74,17 @@ export default class AnkiSynchronizerSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.headingLevel.toString())
           .onChange(async value => {
             this.plugin.settings.headingLevel = parseInt(value);
+          })
+      );
+    new Setting(this.containerEl)
+      .setName('Scan Directory')
+      .setDesc('Directory path to scan for flashcards')
+      .addText(text =>
+        text
+          .setPlaceholder('Enter directory path')
+          .setValue(this.plugin.settings.scanDirectory)
+          .onChange(async value => {
+            this.plugin.settings.scanDirectory = value;
           })
       );
   }

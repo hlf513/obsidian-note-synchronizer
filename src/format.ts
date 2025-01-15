@@ -18,20 +18,31 @@ export default class Formatter {
 
   convertWikilink(markup: string) {
     return markup.replace(/!?\[\[(.+?)\]\]/g, (match, basename) => {
-      // console.log(basename);
+      console.log("wikilink-match:",match);
+      console.log("wikilink:",basename);
       // fixed 别名显示及跳转问题
       let display = basename;
-      if (basename.includes('|') || basename.includes('|')) {
+      if (basename.includes('|')) {
         const path = basename.replace('\\', '').split('|');
         basename = path[0];
         display = path[1];
       }
+      // 判断是否是#开头的内部标题跳转
       if (basename.includes('#') && basename.split('#')[0] == '') {
         return `${basename}`;
       }
+      // 判断是否包含时间戳#t=
+      // 示例：DJ 音标.mp4#t=04:54.19|/dz/
+      let timestamp = '';
+      if (basename.includes('#t=')) {
+        const parts = basename.split('#t=');
+        basename = parts[0];
+        timestamp = '#t=' + parts[1];
+      }
+      
       const url = `obsidian://open?vault=${encodeURIComponent(
         this.vaultName
-      )}&file=${encodeURIComponent(basename)}`;
+      )}&file=${encodeURIComponent(basename)}${timestamp}`;
       return `[${display}](${url})`;
     });
   }

@@ -18,8 +18,8 @@ export default class Formatter {
 
   convertWikilink(markup: string) {
     return markup.replace(/!?\[\[(.+?)\]\]/g, (match, basename) => {
-      console.log("wikilink-match:",match);
-      console.log("wikilink:",basename);
+      // console.log("wikilink-match:",match);
+      // console.log("wikilink:",basename);
       // fixed 别名显示及跳转问题
       let display = basename;
       if (basename.includes('|')) {
@@ -85,6 +85,7 @@ export default class Formatter {
       const linkify = index == 0 && this.settings.linkify && !note.isCloze();
       const field = linkify ? `[[${fields[key]}]]` : fields[key];
       const markdown = this.markdown(field);
+      // console.log("markdown",markdown)
       result[key] = this.settings.render ? this.html(markdown, index) : markdown;
     });
     return result;

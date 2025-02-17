@@ -3,7 +3,7 @@ import { EmbedCache, FrontMatterCache, Notice, TFile, stringifyYaml } from 'obsi
 import { Settings } from './setting';
 import { NoteDigest, NoteTypeDigest } from './state';
 
-const PICTURE_EXTENSION = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg'];
+const PICTURE_EXTENSION = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg','webp'];
 const VIDEO_EXTENSION = [
   'mp3',
   'wav',

@@ -138,8 +138,9 @@ export default class AnkiSynchronizer extends Plugin {
     if (scanDirectory === '') {
       allFiles = this.app.vault.getMarkdownFiles();  // 缓存所有文件
     } else {
+      const directories = scanDirectory.split('\n');
       allFiles = this.app.vault.getMarkdownFiles().filter(file => {
-        return file.path.startsWith(scanDirectory); // 获取指定目录下的所有文件
+        return directories.some(directory => file.path.startsWith(directory)); // 获取所有指定目录下的所有文件
       });
     }
 

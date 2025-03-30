@@ -79,13 +79,18 @@ export default class AnkiSynchronizerSettingTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName('Scan Directory')
       .setDesc('Directory path to scan for flashcards')
-      .addText(text =>
+      .addTextArea(text =>{
+        text.inputEl.style.minHeight = '50px';
+        text.inputEl.style.width = '250px';
+        text.inputEl.style.resize = 'vertical'; // 允许拖动调整
+
         text
           .setPlaceholder('Enter directory path')
           .setValue(this.plugin.settings.scanDirectory)
           .onChange(async value => {
             this.plugin.settings.scanDirectory = value;
           })
+        }
       );
   }
 }

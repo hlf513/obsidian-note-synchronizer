@@ -1,4 +1,4 @@
-import { normalizePath, Notice, Plugin, TFile } from 'obsidian';
+import { normalizePath, Notice, Plugin} from 'obsidian';
 import Anki, { AnkiError } from 'src/anki';
 import locale from 'src/lang';
 import { MediaManager } from 'src/media';
@@ -132,8 +132,8 @@ export default class AnkiSynchronizer extends Plugin {
     if (templatesPath === undefined) return;
     new Notice(locale.synchronizeStartNotice);
 
+    // allFiles 获取配置目录下的所有 md 文件
     let allFiles = [];
-
     const scanDirectory = this.settings.scanDirectory;
     if (scanDirectory === '') {
       allFiles = this.app.vault.getMarkdownFiles();  // 缓存所有文件
@@ -144,14 +144,20 @@ export default class AnkiSynchronizer extends Plugin {
       });
     }
 
-    const allMocs = new Set<string>(); // 缓存所有 moc 的集合
-    const noteMocMap = new Map<string, string>(); // 缓存文件名和对应的 moc
-    const mocPathMap = new Map<string, string>(); // 缓存 moc 和对应的 moc 路径
+    const allTopics = new Set<string>(); // 所有的 topic 文件名
+    const allMocs = new Set<string>(); // 所有包含 #anki 的文件的 moc 的集合
+    const noteMocMap = new Map<string, string>(); // md 文件名 => moc[0]
+    const mocPathMap = new Map<string, string>(); // 单个 moc => anki 目录路径
 
     // 获取所有包含 #anki 的文件
     const ankiFiles = allFiles.filter(file => {
       const cache = this.app.metadataCache.getFileCache(file);
       if (!cache) return false;
+
+      const frontmatterFolder = cache.frontmatter?.folder;
+      if (frontmatterFolder == "Topic"){
+        allTopics.add(file.basename)
+      }
 
       let isAnki = false;
 
@@ -189,17 +195,27 @@ export default class AnkiSynchronizer extends Plugin {
     allMocs.forEach(moc => {
       const currentMocPath = [];
       let currentMoc = moc;
-      currentMocPath.push(currentMoc);
+      if (allTopics.has(currentMoc)){
+        currentMocPath.push(currentMoc);
+      }
       
+      // 这里找上级 moc ，需要把上级 moc 也放入 anki 中才行
       while (noteMocMap.has(currentMoc)) {
         const nextMoc = noteMocMap.get(currentMoc);
         if (!nextMoc) break;
-        currentMocPath.push(nextMoc);
+        if (allTopics.has(nextMoc)){
+          currentMocPath.push(nextMoc);
+        } 
         currentMoc = nextMoc;
       }
       currentMocPath.reverse();
       mocPathMap.set(moc, currentMocPath.join('::'))
     });
+
+    // console.log("allTopics",allTopics)
+    // console.log("allMocs",allMocs)
+    // console.log("noteMocMap",noteMocMap)
+    // console.log("mocPathMap",mocPathMap)
 
     const state = new Map<number, [NoteDigest, Note]>();
     // console.log(ankiFiles)

@@ -145,7 +145,7 @@ export default class AnkiSynchronizer extends Plugin {
     }
 
     const allTopics = new Set<string>(); // 所有的 topic 文件名
-    const allMocs = new Set<string>(); // 所有包含 #anki 的文件的 moc 的集合
+    const allMocs = new Set<string>(); // 所有文件的 moc 的集合
     const noteMocMap = new Map<string, string>(); // md 文件名 => moc[0]
     const mocPathMap = new Map<string, string>(); // 单个 moc => anki 目录路径
 
@@ -178,7 +178,8 @@ export default class AnkiSynchronizer extends Plugin {
         }
       }
 
-      if (isAnki) {
+      // 这里注释不能打开，若打开后，则必须把 moc path 涉及的文件全部加上 anki 标签
+      // if (isAnki) {
         // 缓存 frontmatter 中的 moc
         const frontmatterMoc = cache.frontmatter?.moc;
         if (frontmatterMoc && frontmatterMoc.length > 0) {
@@ -186,7 +187,7 @@ export default class AnkiSynchronizer extends Plugin {
           allMocs.add(currentMoc);
           noteMocMap.set(file.basename, currentMoc);
         }
-      }
+      // }
 
       return isAnki;
    });
